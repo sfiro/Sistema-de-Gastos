@@ -24,7 +24,7 @@ class interfax(tk.Tk):
 # ------------- creación de la ventana grafica ------------------
 
         self.title("Vendedores")
-        self.geometry("400x300")
+        self.geometry("500x350")
         self.columnconfigure((0,1),weight=1)
 
         self.rowconfigure((0,1,2,3,4),weight=0)
@@ -38,11 +38,12 @@ class interfax(tk.Tk):
         self.correo.grid(row = 2, column = 0, padx = 10, pady = 10)
 #----------------Data Entry -----------------------------------------------------
         self.entradaNombre = tk.Entry(master = self, textvariable="Nombre:")
-        self.entradaNombre.grid(row = 0, column = 1, columnspan= 2, sticky="nsew")
+        self.entradaNombre.grid(row = 0, column = 1, columnspan= 3, sticky="nsew")
         self.entradaTelefono = tk.Entry(master = self, textvariable="Telefono")
-        self.entradaTelefono.grid(row = 1, column = 1, columnspan= 2, sticky="nsew")
+        self.entradaTelefono.grid(row = 1, column = 1, columnspan= 3, sticky="nsew")
         self.entradaCorreo = tk.Entry(master = self, textvariable="Correo")
-        self.entradaCorreo.grid(row = 2, column = 1, columnspan= 2, sticky="nsew")
+        self.entradaCorreo.grid(row = 2, column = 1, columnspan= 3, sticky="nsew")
+        
 
 #----------------Botones de acción -----------------------------------------------------
         self.ingresarButton = tk.Button(master=self,text="INGRESAR",command=self.ingresar)
@@ -51,13 +52,15 @@ class interfax(tk.Tk):
         self.actualizarButton.grid(row=3,column=1,padx=10,pady=10)
         self.eliminarButton = tk.Button(master=self,text="ELIMINAR",command=self.eliminar)
         self.eliminarButton.grid(row=3,column=2,padx=10,pady=10)
+        self.cargarButton = tk.Button(master=self,text="CARGAR",command=self.cargar)
+        self.cargarButton.grid(row=3,column=3,padx=10,pady=10)
 
 #----------------List BOX  -----------------------------------------------------   
         self.lista = tk.Listbox(master=self)
-        self.lista.grid(row = 4, column = 0, columnspan = 3, sticky="nsew")
+        self.lista.grid(row = 4, column = 0, columnspan = 4, sticky="nsew")
         self.scrollbar = tk.Scrollbar(master=self,orient="vertical" ,command=self.lista.yview)
         self.lista.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.grid(row = 4, column = 2,sticky="nse")
+        self.scrollbar.grid(row = 4, column = 3,sticky="nse")
 
         self.actualizar()
 
@@ -81,7 +84,7 @@ class interfax(tk.Tk):
     def eliminar():
         pass
     def actualizar(self):
-        
+        self.lista.delete(0,"end")
         sql = "SELECT * FROM Vendedores"
         self.cursor.execute(sql)
         n=0
@@ -91,6 +94,20 @@ class interfax(tk.Tk):
             self.lista.insert(n,list(dato[1:]))
             n = n+1
         #self.connection.commit()
+    def cargar(self):
+        self.entradaNombre.delete(0,tk.END)
+        self.entradaTelefono.delete(0,tk.END)
+        self.entradaCorreo.delete(0,tk.END)
+        
+        indice = self.lista.curselection()[0]
+        datos=self.lista.get(indice)
+        print(indice)
+        print(datos)
+        self.entradaNombre.insert(0,datos[0])
+        self.entradaCorreo.insert(0,datos[1])
+        self.entradaTelefono.insert(0,datos[2])
+
+        
         
 
 if __name__ == "__main__":
