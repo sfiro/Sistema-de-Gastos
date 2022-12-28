@@ -18,6 +18,7 @@ class interfax(tk.Tk):
 
         print("conexion establecida exitosamente")
         print("la base de datos se llama:",registro)
+        self.idVendedor = 0
 
         
 
@@ -62,50 +63,60 @@ class interfax(tk.Tk):
         self.lista.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row = 4, column = 3,sticky="nse")
 
-        self.actualizar()
+        self.refrescar()
 
     def ingresar(self):
         #print("hola")
         name = self.entradaNombre.get()
         email = self.entradaCorreo.get()
         phone = self.entradaTelefono.get()
-
-        
         self.cursor.execute("INSERT INTO Vendedores(vendedor,correo,telefono) VALUES('{}','{}','{}');".format(name,email,phone))
         self.connection.commit()
         print(name + email + phone)
-        
+        self.refrescar()
 
+    def eliminar(self):
+        sql = "DELETE FROM Vendedores WHERE idvendedor = {}".format(self.idVendedor)
+        self.cursor.execute(sql)
+        self.connection.commit()
+        self.refrescar()
+        
+    
+    def actualizar(self):
+        print(self.idVendedor)
+        name = self.entradaNombre.get()
+        email = self.entradaCorreo.get()
+        phone = self.entradaTelefono.get()
+        #sql = "UPDATE FROM Vendedores(vendedor,correo,telefono) VALUES('{}','{}','{}');".format(name,email,phone)
+        self.cursor.execute("UPDATE Vendedores SET vendedor = '{}',correo = '{}',telefono='{}' WHERE idvendedor = '{}'".format(name,email,phone,self.idVendedor))
+        self.connection.commit()
+        self.refrescar()
+
+
+    def refrescar(self):
         self.entradaNombre.delete(0,tk.END)
         self.entradaTelefono.delete(0,tk.END)
         self.entradaCorreo.delete(0,tk.END)
-        self.actualizar()
-
-    def eliminar():
-        pass
-    def actualizar(self):
         self.lista.delete(0,"end")
         sql = "SELECT * FROM Vendedores"
         self.cursor.execute(sql)
         n=0
         for dato in self.cursor.fetchall():
-            # print(dato)
-            # print(list(dato[1:]))
-            self.lista.insert(n,list(dato[1:]))
+            self.lista.insert(n,list(dato[:]))
             n = n+1
         #self.connection.commit()
     def cargar(self):
+        
         self.entradaNombre.delete(0,tk.END)
         self.entradaTelefono.delete(0,tk.END)
         self.entradaCorreo.delete(0,tk.END)
-        
+
         indice = self.lista.curselection()[0]
         datos=self.lista.get(indice)
-        print(indice)
-        print(datos)
-        self.entradaNombre.insert(0,datos[0])
-        self.entradaCorreo.insert(0,datos[1])
-        self.entradaTelefono.insert(0,datos[2])
+        self.idVendedor = datos[0]
+        self.entradaNombre.insert(0,datos[1])
+        self.entradaCorreo.insert(0,datos[2])
+        self.entradaTelefono.insert(0,datos[3])
 
         
         
