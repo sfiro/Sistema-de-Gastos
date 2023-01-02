@@ -31,13 +31,46 @@ class AgregarProveedor(tk.Tk):
         self.title("Agregar Proveedor")
         self.geometry("500x300")
 
-        self.guardarButton = tk.Button(master=self,text="Guardar",command=self.guardar)
-        self.guardarButton.grid(row=0,column=0,padx=10,pady=10)
+        self.frame1 = tk.Frame(master=self)
+        self.frame1.grid(row=0,column=0,sticky="nsew")
 
-        self.actualizarButton = tk.Button(master=self,text="Actualizar",command=self.actualizar)
-        self.actualizarButton.grid(row=0,column=1,padx=10,pady=10)
-        self.eliminarButton = tk.Button(master=self,text="Eliminar",command=self.eliminar)
-        self.eliminarButton.grid(row=0,column=2,padx=10,pady=10)
+        self.frame2 = tk.Frame(master=self)
+        self.frame2.grid(row=1,column=0,sticky="nsew")
+
+# ------------------ label de la ventana proveedores -------------------------------------
+
+        self.empresa = tk.Label(master = self.frame1, text = "Empresa:")
+        self.empresa.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        self.representante = tk.Label(master = self.frame1, text = "Representante legal:")
+        self.representante.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        self.nit = tk.Label(master = self.frame1, text = "NIT:")
+        self.nit.grid(row = 2, column = 0, padx = 10, pady = 10)
+
+        self.celular = tk.Label(master = self.frame1, text = "Celular:")
+        self.celular.grid(row = 3, column = 0, padx = 10, pady = 10)
+
+# ------------------ Entry de la ventana proveedores -------------------------------------
+
+        self.entradaEmpresa = tk.Entry(master = self.frame1, textvariable="Empresa:")
+        self.entradaEmpresa.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+        self.entradaRepresentante = tk.Entry(master = self.frame1, textvariable="Representante legal:")
+        self.entradaEmpresa.grid(row = 1, column = 1, padx = 10, pady = 10)
+
+        self.entradaNIT = tk.Entry(master = self.frame1, textvariable="NIT:")
+        self.entradaNIT.grid(row = 2, column = 1, padx = 10, pady = 10)
+
+        self.entradaTelefono = tk.Entry(master = self.frame1, textvariable="Telefono:")
+        self.entradaTelefono.grid(row = 3, column = 1, padx = 10, pady = 10)
+
+        # self.guardarButton = tk.Button(master=self.frame1,text="Guardar",command=self.guardar)
+        # self.guardarButton.grid(row=0,column=0,padx=10,pady=10)
+        # self.actualizarButton = tk.Button(master=self.frame1,text="Actualizar",command=self.actualizar)
+        # self.actualizarButton.grid(row=0,column=1,padx=10,pady=10)
+        # self.eliminarButton = tk.Button(master=self.frame1,text="Eliminar",command=self.eliminar)
+        # self.eliminarButton.grid(row=0,column=2,padx=10,pady=10)
     
     def guardar(self):
         pass
