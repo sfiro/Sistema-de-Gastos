@@ -189,6 +189,8 @@ class AgregarProveedor(tk.Tk):
         self.treeview.heading('col11', text='RUT')
         self.treeview.grid(row = 1, column = 0, columnspan = 3, sticky="nsew")
         self.scrollbarTree.grid(row = 2, column = 0, sticky="ew")
+
+        self.refrescar()
     
     def guardar(self):
         pass
@@ -198,6 +200,22 @@ class AgregarProveedor(tk.Tk):
 
     def actualizar(self):
         pass
+
+    def refrescar(self):
+        #self.entradaNombre.delete(0,tk.END)
+        #self.entradaTelefono.delete(0,tk.END)
+        #self.entradaCorreo.delete(0,tk.END)
+        
+        sql = "SELECT * FROM Proveedores"
+        self.cursor.execute(sql)
+
+        n=0
+        for dato in self.cursor.fetchall():
+            print(dato)
+            self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+             #self.lista.insert(n,list(dato[:]))
+            n = n+1
+        #self.connection.commit()
 
 
 
