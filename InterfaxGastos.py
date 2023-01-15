@@ -4,6 +4,7 @@ import mysql.connector
 
 
 
+
 # -------------------- Ventana Principal del modulo de gasto ---------------------------------------
 class SeguimientoGastos(tk.Tk):
     def __init__(self):
@@ -51,11 +52,11 @@ class AgregarProveedor(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        #----------- conexion a la base de datos ------------------------
+        # ----------- conexion a la base de datos ------------------------
         self.connection = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='3231213a',
+            password='3231213',
             db='INGENIO'
         )
         self.cursor = self.connection.cursor()
@@ -133,23 +134,39 @@ class AgregarProveedor(tk.Tk):
         self.comboBoxPyme['values'] = ("SI","NO")
         self.comboBoxPyme.grid(row = 4, column = 1, padx = 10, pady = 10)
 
-        self.comboBoxDepartamento = ttk.Combobox(master = self.frame1)
-        self.comboBoxDepartamento['values'] = ("Risaralda","Valle")
-        self.comboBoxDepartamento.grid(row = 5, column = 1, padx = 10, pady = 10)
+        def seleccion(event): #evento que actuliza la base de datos del combobox municipio en base a la seleccion del departamento
+    
+            sql = "SELECT municipio FROM municipios WHERE departamento = '{}';".format(self.comboBoxDepartamento.get())  
+            self.cursor.execute(sql)
+            valores =[]
+            for valor in self.cursor.fetchall():
+                valores.append(valor[0])
+            self.comboBoxMunicipio['values'] = valores
 
+# -----combobox de departamentos, se hace la consulta a SQL y se traen todos los datos de la tabla
+        self.comboBoxDepartamento = ttk.Combobox(master = self.frame1)
+        sql = "SELECT nombre FROM Departamentos " 
+        self.cursor.execute(sql)
+        valores =[]
+        for valor in self.cursor.fetchall():
+            valores.append(valor[0])
+        self.comboBoxDepartamento['values'] = valores
+        self.comboBoxDepartamento.grid(row = 5, column = 1, columnspan=2, padx = 10, pady = 10)
+        self.comboBoxDepartamento.bind("<<ComboboxSelected>>",seleccion) #este es un evento que ocurre al generar un cambo en el combobox departamento
+
+# ---- El valor seleccionado en departamento debe filtrar las opciones del combobox de municipios
         self.comboBoxMunicipio = ttk.Combobox(master = self.frame1)
-        self.comboBoxMunicipio['values'] = ("Cali","Pereira")
         self.comboBoxMunicipio.grid(row = 6, column = 1, padx = 10, pady = 10)
 
-        self.direccion = tk.Entry(master = self.frame1, text = "Direccion:")
-        self.direccion.grid(row = 7, column = 1, padx = 10, pady = 10)
+        self.entradaDireccion = tk.Entry(master = self.frame1, text = "Direccion:")
+        self.entradaDireccion.grid(row = 7, column = 1, padx = 10, pady = 10)
 
         self.comboBoxCategoria = ttk.Combobox(master = self.frame1)
         self.comboBoxCategoria['values'] = ("Madera","Impresiones")
         self.comboBoxCategoria.grid(row = 8, column = 1, padx = 10, pady = 10)
 
-        self.descripcion = tk.Entry(master = self.frame1, text = "descripcion:")
-        self.descripcion.grid(row = 9, column = 1, padx = 10, pady = 10)
+        self.entradaDescripcion = tk.Entry(master = self.frame1, text = "descripcion:")
+        self.entradaDescripcion.grid(row = 9, column = 1, padx = 10, pady = 10)
 
         self.labelRut = tk.Label(master = self.frame1, text = "Vacio")
         self.labelRut.grid(row = 10, column = 1, padx = 10, pady = 10)
@@ -179,21 +196,36 @@ class AgregarProveedor(tk.Tk):
         self.treeview.heading('col1', text='Empresa')
         self.treeview.heading('col2', text='Representante')
         self.treeview.heading('col3', text='NIT')
-        self.treeview.heading('col4', text='Telefono')
-        self.treeview.heading('col5', text='Es PYME')
-        self.treeview.heading('col6', text='Departamento')
-        self.treeview.heading('col7', text='Municipio')
-        self.treeview.heading('col8', text='Direccion')
-        self.treeview.heading('col9', text='Categoria')
-        self.treeview.heading('col10', text='Descripcion')
-        self.treeview.heading('col11', text='RUT')
+        self.treeview.heading('col4', text='Es PYME')
+        self.treeview.heading('col5', text='Departamento')
+        self.treeview.heading('col6', text='Municipio')
+        self.treeview.heading('col7', text='Direccion')
+        self.treeview.heading('col8', text='Categoria')
+        self.treeview.heading('col9', text='Descripcion')
+        self.treeview.heading('col10', text='RUT')
+        self.treeview.heading('col11', text='Telefono')
         self.treeview.grid(row = 1, column = 0, columnspan = 3, sticky="nsew")
         self.scrollbarTree.grid(row = 2, column = 0, sticky="ew")
 
         self.refrescar()
     
+    
     def guardar(self):
-        pass
+        empresa = self.entradaEmpresa.get()
+        representante = self.entradaRepresentante.get()
+        nit = self.entradaNIT.get()
+        telefono = self.entradaTelefono.get()
+        espyme = self.comboBoxPyme.get()
+        departamento = self.comboBoxDepartamento.get()
+        municipio = self.comboBoxMunicipio.get()
+        direccion = self.entradaDireccion.get()
+        categoria = self.comboBoxCategoria.get()
+        descripcion = self.entradaDescripcion.get()
+
+
+        self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono))
+        self.connection.commit()
+        self.refrescar()
 
     def eliminar(self):
         pass
@@ -205,17 +237,30 @@ class AgregarProveedor(tk.Tk):
         #self.entradaNombre.delete(0,tk.END)
         #self.entradaTelefono.delete(0,tk.END)
         #self.entradaCorreo.delete(0,tk.END)
-        
+        self.treeview.delete(*self.treeview.get_children())
         sql = "SELECT * FROM Proveedores"
         self.cursor.execute(sql)
 
         n=0
         for dato in self.cursor.fetchall():
-            print(dato)
+            #print(dato)
             self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
              #self.lista.insert(n,list(dato[:]))
             n = n+1
-        #self.connection.commit()
+    def validar(self):
+        #if self.entradaEmpresa.get() == "":
+        # representante = self.entradaRepresentante.get()
+        # nit = self.entradaNIT.get()
+        # telefono = self.entradaTelefono.get()
+        # espyme = self.comboBoxPyme.get()
+        # departamento = self.comboBoxDepartamento.get()
+        # municipio = self.comboBoxMunicipio.get()
+        # direccion = self.entradaDireccion.get()
+        # categoria = self.comboBoxCategoria.get()
+        # descripcion = self.entradaDescripcion.get()
+
+
+        
 
 
 
