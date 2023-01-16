@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import mysql.connector
+
 
 
 
@@ -211,21 +213,23 @@ class AgregarProveedor(tk.Tk):
     
     
     def guardar(self):
-        empresa = self.entradaEmpresa.get()
-        representante = self.entradaRepresentante.get()
-        nit = self.entradaNIT.get()
-        telefono = self.entradaTelefono.get()
-        espyme = self.comboBoxPyme.get()
-        departamento = self.comboBoxDepartamento.get()
-        municipio = self.comboBoxMunicipio.get()
-        direccion = self.entradaDireccion.get()
-        categoria = self.comboBoxCategoria.get()
-        descripcion = self.entradaDescripcion.get()
+        valor = self.validar()
+        if valor:
+            empresa = self.entradaEmpresa.get()
+            representante = self.entradaRepresentante.get()
+            nit = self.entradaNIT.get()
+            telefono = self.entradaTelefono.get()
+            espyme = self.comboBoxPyme.get()
+            departamento = self.comboBoxDepartamento.get()
+            municipio = self.comboBoxMunicipio.get()
+            direccion = self.entradaDireccion.get()
+            categoria = self.comboBoxCategoria.get()
+            descripcion = self.entradaDescripcion.get()
 
+            self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono))
+            self.connection.commit()
+            self.refrescar()
 
-        self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono))
-        self.connection.commit()
-        self.refrescar()
 
     def eliminar(self):
         pass
@@ -247,22 +251,41 @@ class AgregarProveedor(tk.Tk):
             self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
              #self.lista.insert(n,list(dato[:]))
             n = n+1
-    def validar(self):
-        #if self.entradaEmpresa.get() == "":
-        # representante = self.entradaRepresentante.get()
-        # nit = self.entradaNIT.get()
-        # telefono = self.entradaTelefono.get()
-        # espyme = self.comboBoxPyme.get()
-        # departamento = self.comboBoxDepartamento.get()
-        # municipio = self.comboBoxMunicipio.get()
-        # direccion = self.entradaDireccion.get()
-        # categoria = self.comboBoxCategoria.get()
-        # descripcion = self.entradaDescripcion.get()
+    def validar(self): #valida si todos los elementos de la ventana se encuentran con valores en caso contrario no deja guardar la información
+        valor = True
+        if self.entradaEmpresa.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el nombre de la empresa")
+            valor = False
+        if self.entradaRepresentante.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el nombre del representante de la empresa")
+            valor = False
+        if self.entradaNIT.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el NIT del cliente")
+            valor = False
+        if self.entradaTelefono.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el telefono de la empresa")
+            valor = False
+        if self.comboBoxPyme.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar si la empresa es Pyme")
+            valor = False
+        if self.comboBoxDepartamento.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar el departamento")
+            valor = False
+        if self.comboBoxMunicipio.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar el municipio")
+            valor = False
+        if self.entradaDireccion.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar una direccion")
+            valor = False
+        if self.comboBoxCategoria.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar una categoria")
+            valor = False
+        if self.entradaDescripcion.get() == "":
+            messagebox.showinfo("Problema", "se debe seleccionar una descripción")
+            valor = False
 
-
-        
-
-
+        return valor
+ 
 
 if __name__ == "__main__":
     VentanaGastos = SeguimientoGastos()
