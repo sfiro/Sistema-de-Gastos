@@ -175,26 +175,37 @@ class AgregarProveedor(tk.Tk):
 
 #----------------- frame 2 proveedores -------------------------------------------
 
+        self.seleccionarButton = tk.Button(master=self.frame2,text="Seleccionar",command=self.seleccionar)
+        self.seleccionarButton.grid(row=0,column=0,padx=10,pady=10)
+
         self.guardarButton = tk.Button(master=self.frame2,text="Guardar",command=self.guardar)
-        self.guardarButton.grid(row=0,column=0,padx=10,pady=10)
+        self.guardarButton.grid(row=0,column=1,padx=10,pady=10)
 
         self.actualizarButton = tk.Button(master=self.frame2,text="Actualizar",command=self.actualizar)
-        self.actualizarButton.grid(row=0,column=1,padx=10,pady=10)
+        self.actualizarButton.grid(row=0,column=2,padx=10,pady=10)
 
         self.eliminarButton = tk.Button(master=self.frame2,text="Eliminar",command=self.eliminar)
-        self.eliminarButton.grid(row=0,column=2,padx=10,pady=10)
+        self.eliminarButton.grid(row=0,column=3,padx=10,pady=10)
 
 #-------------------frame 3 proveedores treeview ----------------------------------
 
         self.treeview = ttk.Treeview(master=self.frame3,columns=('col1','col2','col3','col4','col5','col6','col7','col8','col9','col10','col11'))
-        
         self.scrollbarTree = ttk.Scrollbar(master=self.frame3,orient="horizontal")
         self.treeview.configure(xscrollcommand=self.scrollbarTree.set)
         self.scrollbarTree.config(command=self.treeview.xview)
         
-
         self.treeview.heading('#0', text='ID')
-        self.treeview.column('#0', width=70)
+        self.treeview.column('#0', width=50)  #id
+        self.treeview.column('#1', width=150) #empresa
+        self.treeview.column('#2', width=150) #representante
+        self.treeview.column('#3', width=100) #nit
+        self.treeview.column('#4', width=50)  #es pyme
+        self.treeview.column('#5', width=130) #departamento
+        self.treeview.column('#6', width=130) #municipio
+        self.treeview.column('#7', width=200) #direccion
+        self.treeview.column('#8', width=100) #categoria
+        self.treeview.column('#9', width=150) #descripcion
+
         self.treeview.heading('col1', text='Empresa')
         self.treeview.heading('col2', text='Representante')
         self.treeview.heading('col3', text='NIT')
@@ -206,8 +217,8 @@ class AgregarProveedor(tk.Tk):
         self.treeview.heading('col9', text='Descripcion')
         self.treeview.heading('col10', text='RUT')
         self.treeview.heading('col11', text='Telefono')
-        self.treeview.grid(row = 1, column = 0, columnspan = 3, sticky="nsew")
-        self.scrollbarTree.grid(row = 2, column = 0, sticky="ew")
+        self.treeview.grid(row = 0, column = 0, columnspan = 3, sticky="nsew")
+        self.scrollbarTree.grid(row = 1, column = 0, sticky="nsew")
 
         self.refrescar()
     
@@ -229,6 +240,24 @@ class AgregarProveedor(tk.Tk):
             self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono))
             self.connection.commit()
             self.refrescar()
+            self.borrar()
+    
+    def seleccionar(self):
+        self.borrar()
+        idItem=self.treeview.selection()[0]
+        values = self.treeview.item(idItem,"values")
+        self.entradaEmpresa.insert(0,values[0]) 
+        self.entradaRepresentante.insert(0,values[1])
+        self.entradaNIT.insert(0,values[2])
+        self.entradaTelefono.insert(0,values[10])
+        self.comboBoxPyme.set(values[3])
+        self.comboBoxDepartamento.set(values[4])
+        self.comboBoxMunicipio.set(values[5])
+        self.entradaDireccion.insert(0,values[6])
+        self.comboBoxCategoria.set(values[7])
+        self.entradaDescripcion.insert(0,values[8])
+
+
 
 
     def eliminar(self):
@@ -238,9 +267,6 @@ class AgregarProveedor(tk.Tk):
         pass
 
     def refrescar(self):
-        #self.entradaNombre.delete(0,tk.END)
-        #self.entradaTelefono.delete(0,tk.END)
-        #self.entradaCorreo.delete(0,tk.END)
         self.treeview.delete(*self.treeview.get_children())
         sql = "SELECT * FROM Proveedores"
         self.cursor.execute(sql)
@@ -251,6 +277,7 @@ class AgregarProveedor(tk.Tk):
             self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
              #self.lista.insert(n,list(dato[:]))
             n = n+1
+
     def validar(self): #valida si todos los elementos de la ventana se encuentran con valores en caso contrario no deja guardar la información
         valor = True
         if self.entradaEmpresa.get() == "":
@@ -285,6 +312,18 @@ class AgregarProveedor(tk.Tk):
             valor = False
 
         return valor
+
+    def borrar(self):  #metodo para borrar los valores del formulario.
+        self.entradaEmpresa.delete(0,tk.END)
+        self.entradaRepresentante.delete(0,tk.END)
+        self.entradaNIT.delete(0,tk.END)
+        self.entradaTelefono.delete(0,tk.END)
+        self.comboBoxPyme.set("")
+        self.comboBoxDepartamento.set("")
+        self.comboBoxMunicipio.set("")
+        self.entradaDireccion.delete(0,tk.END)
+        self.comboBoxCategoria.set("")
+        self.entradaDescripcion.delete(0,tk.END)
  
 
 if __name__ == "__main__":
