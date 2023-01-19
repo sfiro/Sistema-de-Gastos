@@ -220,12 +220,15 @@ class AgregarProveedor(tk.Tk):
         self.treeview.grid(row = 0, column = 0, columnspan = 3, sticky="nsew")
         self.scrollbarTree.grid(row = 1, column = 0, sticky="nsew")
 
+        self.noSeleccionRegistro = True #validador de la no selección de un registro, es negativo para facilitar la logica del &
+        self.idItem = 0
+
         self.refrescar()
     
     
     def guardar(self):
         valor = self.validar()
-        if valor:
+        if valor & self.noSeleccionRegistro: #verifica si todos los campos se encuentran llenos y que no se halla seleccionado algún registro ya ingresado
             empresa = self.entradaEmpresa.get()
             representante = self.entradaRepresentante.get()
             nit = self.entradaNIT.get()
@@ -241,11 +244,17 @@ class AgregarProveedor(tk.Tk):
             self.connection.commit()
             self.refrescar()
             self.borrar()
+        if ~self.noSeleccionRegistro:
+            messagebox.showinfo("Problema", "no se puede reingresar un registro que se encuentra en base de datos")
+            self.borrar()
+
+
     
     def seleccionar(self):
         self.borrar()
-        idItem=self.treeview.selection()[0]
-        values = self.treeview.item(idItem,"values")
+        self.idItem=self.treeview.selection()[0]
+        
+        values = self.treeview.item(self.idItem,"values")
         self.entradaEmpresa.insert(0,values[0]) 
         self.entradaRepresentante.insert(0,values[1])
         self.entradaNIT.insert(0,values[2])
@@ -257,14 +266,45 @@ class AgregarProveedor(tk.Tk):
         self.comboBoxCategoria.set(values[7])
         self.entradaDescripcion.insert(0,values[8])
 
+        self.noSeleccionRegistro = False #el false muestra que se ha señalado un registro
+
 
 
 
     def eliminar(self):
-        pass
+        if ~self.noSeleccionRegistro:
+            sql = "DELETE FROM proveedores WHERE (id = '{}');".format(self.idItem)
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.refrescar()
+            self.borrar()
+            
+        if self.noSeleccionRegistro:
+            messagebox.showinfo("Problema", "se debe seleccionar un registro a eliminar")
+
+
 
     def actualizar(self):
-        pass
+        valor = self.validar()
+        if valor & ~self.noSeleccionRegistro:
+            empresa = self.entradaEmpresa.get()
+            representante = self.entradaRepresentante.get()
+            nit = self.entradaNIT.get()
+            telefono = self.entradaTelefono.get()
+            espyme = self.comboBoxPyme.get()
+            departamento = self.comboBoxDepartamento.get()
+            municipio = self.comboBoxMunicipio.get()
+            direccion = self.entradaDireccion.get()
+            categoria = self.comboBoxCategoria.get()
+            descripcion = self.entradaDescripcion.get()
+            sql = "UPDATE proveedores SET Empresa = '{}',Representante = '{}',Nit= '{}',EsPyme= '{}',Departamento= '{}',Municipio= '{}',Direccion= '{}',Categoria= '{}',Descripcion= '{}',Telefono= '{}' WHERE (id = '{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,self.idItem)
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.refrescar()
+            self.borrar()
+            self.noSeleccionRegistro = True #el false muestra que se ha señalado un registro
+
+
 
     def refrescar(self):
         self.treeview.delete(*self.treeview.get_children())
@@ -324,6 +364,8 @@ class AgregarProveedor(tk.Tk):
         self.entradaDireccion.delete(0,tk.END)
         self.comboBoxCategoria.set("")
         self.entradaDescripcion.delete(0,tk.END)
+
+        self.noSeleccionRegistro = True #cada vez que se borra el formulario se restablece la no selección de registros
  
 
 if __name__ == "__main__":
