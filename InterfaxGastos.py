@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import filedialog     #importante para tener ventanas de busqueda de archivos
 import mysql.connector
+import shutil   #necesario para copiar archivos
+import os     #necesario para crear carpetas
+
 
 
 
@@ -115,7 +119,7 @@ class AgregarProveedor(tk.Tk):
         self.descripcion = tk.Label(master = self.frame1, text = "Descripcion:")
         self.descripcion.grid(row = 9, column = 0, padx = 10, pady = 10)
 
-        self.rutButton = tk.Button(master=self.frame1,text="Adjuntar RUT",command=self.guardar)
+        self.rutButton = tk.Button(master=self.frame1,text="Adjuntar RUT",command=self.adjuntarRUT)
         self.rutButton.grid(row=10,column=0,padx=10,pady=10)
 
 # ------------------ Entry de la ventana proveedores -------------------------------------
@@ -268,21 +272,18 @@ class AgregarProveedor(tk.Tk):
 
         self.noSeleccionRegistro = False #el false muestra que se ha señalado un registro
 
-
-
-
     def eliminar(self):
+        if self.noSeleccionRegistro:  #si no se tiene seleccionado algun registro
+            messagebox.showinfo("Problema", "se debe seleccionar un registro a eliminar")
+
         if ~self.noSeleccionRegistro:
             sql = "DELETE FROM proveedores WHERE (id = '{}');".format(self.idItem)
             self.cursor.execute(sql)
             self.connection.commit()
             self.refrescar()
             self.borrar()
-            
-        if self.noSeleccionRegistro:
-            messagebox.showinfo("Problema", "se debe seleccionar un registro a eliminar")
 
-
+        
 
     def actualizar(self):
         valor = self.validar()
@@ -304,8 +305,6 @@ class AgregarProveedor(tk.Tk):
             self.borrar()
             self.noSeleccionRegistro = True #el false muestra que se ha señalado un registro
 
-
-
     def refrescar(self):
         self.treeview.delete(*self.treeview.get_children())
         sql = "SELECT * FROM Proveedores"
@@ -313,9 +312,7 @@ class AgregarProveedor(tk.Tk):
 
         n=0
         for dato in self.cursor.fetchall():
-            #print(dato)
             self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
-             #self.lista.insert(n,list(dato[:]))
             n = n+1
 
     def validar(self): #valida si todos los elementos de la ventana se encuentran con valores en caso contrario no deja guardar la información
@@ -366,6 +363,15 @@ class AgregarProveedor(tk.Tk):
         self.entradaDescripcion.delete(0,tk.END)
 
         self.noSeleccionRegistro = True #cada vez que se borra el formulario se restablece la no selección de registros
+    
+    def adjuntarRUT(self):
+        archivo = filedialog.askopenfilename()   #selecciona el archivo 
+        destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT
+        os.makedirs(destino, mode=0o777, exist_ok=True)
+        shutil.copy(archivo, destino)        #hace una copia del archivo
+
+
+
  
 
 if __name__ == "__main__":
