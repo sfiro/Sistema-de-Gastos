@@ -23,6 +23,8 @@ class SeguimientoGastos(tk.Tk):
         self.ingresarButton.grid(row=0,column=0,padx=10,pady=10)
         self.actualizarButton = tk.Button(master=self,text="Agregar Proveedor",command=self.proveedor)
         self.actualizarButton.grid(row=1,column=0,padx=10,pady=10)
+        self.treeviewButton = tk.Button(master=self,text="TREEVIEW",command=self.tree)
+        self.treeviewButton.grid(row=2,column=0,padx=10,pady=10)
     
     def gastos(self):
         agregar = AgregarGastos()
@@ -31,6 +33,10 @@ class SeguimientoGastos(tk.Tk):
     def proveedor(self):
         proveedorIngreso = AgregarProveedor()
         proveedorIngreso.mainloop()
+    
+    def tree(self):
+        treeView = treeViewDashboard()
+        treeView.mainloop()
 
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar gasto)---------------------------------------
@@ -221,7 +227,7 @@ class AgregarProveedor(tk.Tk):
         self.treeview.heading('col9', text='Descripcion')
         self.treeview.heading('col10', text='RUT')
         self.treeview.heading('col11', text='Telefono')
-        self.treeview.grid(row = 0, column = 0, columnspan = 3, sticky="nsew")
+        self.treeview.grid(row = 0, column = 0, sticky="nsew")
         self.scrollbarTree.grid(row = 1, column = 0, sticky="nsew")
 
         self.noSeleccionRegistro = True #validador de la no selección de un registro, es negativo para facilitar la logica del &
@@ -366,13 +372,101 @@ class AgregarProveedor(tk.Tk):
     
     def adjuntarRUT(self):
         archivo = filedialog.askopenfilename()   #selecciona el archivo 
-        destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT
-        os.makedirs(destino, mode=0o777, exist_ok=True)
-        shutil.copy(archivo, destino)        #hace una copia del archivo
+        if archivo != "":
+            destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT
+            os.makedirs(destino, mode=0o777, exist_ok=True)
+            shutil.copy(archivo, destino)        #hace una copia del archivo
+
+class treeViewDashboard(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        # ----------- conexion a la base de datos ------------------------
+        self.connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='3231213',
+            db='INGENIO'
+        )
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("SELECT database();")
+        registro = self.cursor.fetchone()
+
+        print("conexion establecida exitosamente")
+        print("la base de datos se llama:",registro)
+
+        self.title("Agregar Proveedor")
+        self.geometry("1200x900")
+
+        self.columnconfigure(0, weight=1, minsize=70)
+
+        self.frame1 = tk.Frame(master=self)
+        self.frame2 = tk.Frame(master=self)
+        self.frame3 = tk.Frame(master=self)
+        self.frame1.grid(row=0,column=0,sticky="nsew")
+        self.frame2.grid(row=1,column=0,sticky="nsew")
+        self.frame3.grid(row=1,column=1,sticky="nsew")
+
+        self.treeview = ttk.Treeview(master=self.frame1,columns=('col1','col2','col3','col4','col5','col6','col7','col8','col9','col10','col11'))
+        self.treeview.grid(row = 0, column = 0,sticky="ew")
+
+        
+        #self.treeview.configure(xscrollcommand=self.scrollbarTree.set)
+        
+        self.treeview.heading('#0', text='ID')
+        self.treeview.column('#0', width=50)  #id
+        self.treeview.column('#1', width=150) #empresa
+        self.treeview.column('#2', width=150) #representante
+        self.treeview.column('#3', width=100) #nit
+        self.treeview.column('#4', width=50)  #es pyme
+        self.treeview.column('#5', width=130) #departamento
+        self.treeview.column('#6', width=130) #municipio
+        self.treeview.column('#7', width=200) #direccion
+        self.treeview.column('#8', width=100) #categoria
+        self.treeview.column('#9', width=150) #descripcion
+
+        self.treeview.heading('col1', text='Empresa')
+        self.treeview.heading('col2', text='Representante')
+        self.treeview.heading('col3', text='NIT')
+        self.treeview.heading('col4', text='Es PYME')
+        self.treeview.heading('col5', text='Departamento')
+        self.treeview.heading('col6', text='Municipio')
+        self.treeview.heading('col7', text='Direccion')
+        self.treeview.heading('col8', text='Categoria')
+        self.treeview.heading('col9', text='Descripcion')
+        self.treeview.heading('col10', text='RUT')
+        self.treeview.heading('col11', text='Telefono')
+
+        self.scrollbarTree = ttk.Scrollbar(master=self.frame1,orient="horizontal",command=self.treeview.xview)
+        self.scrollbarTree.grid(row = 1, column = 0,sticky="ew")
+        self.treeview.config(xscrollcommand=self.scrollbarTree.set)
+
+        def filtrar(event):
+            nombre = self.entradaEmpresa.get()
+            print(nombre)
 
 
+        self.entradaEmpresa = tk.Entry(master = self.frame2, textvariable="Buscar:")
+        self.entradaEmpresa.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.entradaEmpresa.bind('<Key>', filtrar)
 
- 
+
+        self.entradaRepresentante = tk.Entry(master = self.frame2, textvariable="Representante:")
+        self.entradaRepresentante.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+        self.refrescar()
+    
+    def refrescar(self):
+        self.treeview.delete(*self.treeview.get_children())
+        sql = "SELECT * FROM Proveedores"
+        self.cursor.execute(sql)
+
+        n=0
+        for dato in self.cursor.fetchall():
+            self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+            n = n+1
+    
+    
+
 
 if __name__ == "__main__":
     VentanaGastos = SeguimientoGastos()
