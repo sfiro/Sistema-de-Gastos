@@ -442,7 +442,28 @@ class treeViewDashboard(tk.Tk):
 
         def filtrar(event):
             nombre = self.entradaEmpresa.get()
-            print(nombre)
+            
+            self.treeview.delete(*self.treeview.get_children())
+
+            sql = "SELECT * FROM Proveedores WHERE Empresa like '%{}%'".format(nombre)
+            self.cursor.execute(sql)
+
+            n=0
+            for dato in self.cursor.fetchall():
+                self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+                n = n+1
+        
+        # def nuevoFiltro(event):
+        #     nombre = self.entradaRepresentante.get()
+        #     self.treeview.delete(*self.treeview.get_children())
+
+        #     sql = "SELECT * FROM Proveedores WHERE Representante like '%{}%'".format(nombre)
+        #     self.cursor.execute(sql)
+
+        #     n=0
+        #     for dato in self.cursor.fetchall():
+        #         self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+        #         n = n+1
 
 
         self.entradaEmpresa = tk.Entry(master = self.frame2, textvariable="Buscar:")
@@ -450,8 +471,9 @@ class treeViewDashboard(tk.Tk):
         self.entradaEmpresa.bind('<Key>', filtrar)
 
 
-        self.entradaRepresentante = tk.Entry(master = self.frame2, textvariable="Representante:")
-        self.entradaRepresentante.grid(row = 0, column = 1, padx = 10, pady = 10)
+        # self.entradaRepresentante = tk.Entry(master = self.frame2, textvariable="Representante:")
+        # self.entradaRepresentante.grid(row = 0, column = 1, padx = 10, pady = 10)
+        # self.entradaRepresentante.bind('<key>',nuevoFiltro)
 
         self.refrescar()
     
