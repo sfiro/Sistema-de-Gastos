@@ -79,7 +79,7 @@ class AgregarProveedor(tk.Tk):
         print("la base de datos se llama:",registro)
 
         self.title("Agregar Proveedor")
-        self.geometry("1200x900")
+        self.geometry("1600x900")
 
         self.columnconfigure(0, weight=1, minsize=70)
 
@@ -199,7 +199,7 @@ class AgregarProveedor(tk.Tk):
 
 #-------------------frame 3 proveedores treeview ----------------------------------
 
-        self.treeview = ttk.Treeview(master=self.frame3,columns=('col1','col2','col3','col4','col5','col6','col7','col8','col9','col10','col11'))
+        self.treeview = ttk.Treeview(master=self.frame3,columns=('col1','col2','col3','col4','col5','col6','col7'))
         self.scrollbarTree = ttk.Scrollbar(master=self.frame3,orient="horizontal")
         self.treeview.configure(xscrollcommand=self.scrollbarTree.set)
         self.scrollbarTree.config(command=self.treeview.xview)
@@ -208,29 +208,24 @@ class AgregarProveedor(tk.Tk):
         self.treeview.column('#0', width=50)  #id
         self.treeview.column('#1', width=150) #empresa
         self.treeview.column('#2', width=150) #representante
-        self.treeview.column('#3', width=100) #nit
-        self.treeview.column('#4', width=50)  #es pyme
-        self.treeview.column('#5', width=130) #departamento
-        self.treeview.column('#6', width=130) #municipio
-        self.treeview.column('#7', width=200) #direccion
-        self.treeview.column('#8', width=100) #categoria
-        self.treeview.column('#9', width=150) #descripcion
+        self.treeview.column('#3', width=100) #telefono
+        self.treeview.column('#4', width=130) #departamento
+        self.treeview.column('#5', width=130) #municipio
+        self.treeview.column('#6', width=100) #categoria
+        self.treeview.column('#7', width=130) #RUT
+
 
         self.treeview.heading('col1', text='Empresa')
         self.treeview.heading('col2', text='Representante')
-        self.treeview.heading('col3', text='NIT')
-        self.treeview.heading('col4', text='Es PYME')
-        self.treeview.heading('col5', text='Departamento')
-        self.treeview.heading('col6', text='Municipio')
-        self.treeview.heading('col7', text='Direccion')
-        self.treeview.heading('col8', text='Categoria')
-        self.treeview.heading('col9', text='Descripcion')
-        self.treeview.heading('col10', text='RUT')
-        self.treeview.heading('col11', text='Telefono')
+        self.treeview.heading('col3', text='Telefono')
+        self.treeview.heading('col4', text='Departamento')
+        self.treeview.heading('col5', text='Municipio')
+        self.treeview.heading('col6', text='Categoria')
+        self.treeview.heading('col7', text='RUT')
         self.treeview.grid(row = 0, column = 0, sticky="nsew")
         self.scrollbarTree.grid(row = 1, column = 0, sticky="nsew")
 
-        self.noSeleccionRegistro = True #validador de la no selección de un registro, es negativo para facilitar la logica del &
+        self.SeleccionRegistro = False #validador de la selección de un registro
         self.idItem = 0
 
         self.refrescar()
@@ -238,7 +233,8 @@ class AgregarProveedor(tk.Tk):
     
     def guardar(self):
         valor = self.validar()
-        if valor & self.noSeleccionRegistro: #verifica si todos los campos se encuentran llenos y que no se halla seleccionado algún registro ya ingresado
+        
+        if valor & ~self.SeleccionRegistro: #verifica si todos los campos se encuentran llenos y que no se halla seleccionado algún registro ya ingresado
             empresa = self.entradaEmpresa.get()
             representante = self.entradaRepresentante.get()
             nit = self.entradaNIT.get()
@@ -250,50 +246,61 @@ class AgregarProveedor(tk.Tk):
             categoria = self.comboBoxCategoria.get()
             descripcion = self.entradaDescripcion.get()
 
-            self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono))
+            if self.archivo != "":
+                destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT  <<<<<<< SE DEBE CAMBIAR !!!
+                nombreRUT = os.path.basename(self.archivo) #guarda el nombre del archivo
+                os.makedirs(destino, mode=0o777, exist_ok=True)
+                shutil.copy(self.archivo, destino)        #hace una copia del archivo
+
+            self.cursor.execute("INSERT INTO proveedores(Empresa,Representante,Nit,EsPyme,Departamento,Municipio,Direccion,Categoria,Descripcion,Telefono,Archivo) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,nombreRUT))
             self.connection.commit()
             self.refrescar()
             self.borrar()
-        if ~self.noSeleccionRegistro:
+        
+        if self.SeleccionRegistro:
             messagebox.showinfo("Problema", "no se puede reingresar un registro que se encuentra en base de datos")
             self.borrar()
+
+        
 
 
     
     def seleccionar(self):
         self.borrar()
-        self.idItem=self.treeview.selection()[0]
-        
-        values = self.treeview.item(self.idItem,"values")
-        self.entradaEmpresa.insert(0,values[0]) 
-        self.entradaRepresentante.insert(0,values[1])
-        self.entradaNIT.insert(0,values[2])
-        self.entradaTelefono.insert(0,values[10])
-        self.comboBoxPyme.set(values[3])
-        self.comboBoxDepartamento.set(values[4])
-        self.comboBoxMunicipio.set(values[5])
-        self.entradaDireccion.insert(0,values[6])
-        self.comboBoxCategoria.set(values[7])
-        self.entradaDescripcion.insert(0,values[8])
+        self.idItem=int(self.treeview.selection()[0])
 
-        self.noSeleccionRegistro = False #el false muestra que se ha señalado un registro
+        sql = "SELECT * FROM proveedores WHERE (id = '{}');".format(self.idItem)
+        self.cursor.execute(sql)
+        datos = self.cursor.fetchone()
+        
+        self.entradaEmpresa.insert(0,datos[1]) 
+        self.entradaRepresentante.insert(0,datos[2])
+        self.entradaNIT.insert(0,datos[3])
+        self.entradaTelefono.insert(0,datos[11])
+        self.comboBoxPyme.set(datos[4])
+        self.comboBoxDepartamento.set(datos[5])
+        self.comboBoxMunicipio.set(datos[6])
+        self.entradaDireccion.insert(0,datos[7])
+        self.comboBoxCategoria.set(datos[8])
+        self.entradaDescripcion.insert(0,datos[9])
+        self.labelRut.config(text= datos[10])
+
+        self.SeleccionRegistro = True #el false muestra que se ha señalado un registro
 
     def eliminar(self):
-        if self.noSeleccionRegistro:  #si no se tiene seleccionado algun registro
+        if ~self.SeleccionRegistro:  #si no se tiene seleccionado algun registro
             messagebox.showinfo("Problema", "se debe seleccionar un registro a eliminar")
 
-        if ~self.noSeleccionRegistro:
+        if self.SeleccionRegistro:
             sql = "DELETE FROM proveedores WHERE (id = '{}');".format(self.idItem)
             self.cursor.execute(sql)
             self.connection.commit()
             self.refrescar()
             self.borrar()
 
-        
-
     def actualizar(self):
         valor = self.validar()
-        if valor & ~self.noSeleccionRegistro:
+        if valor & self.SeleccionRegistro:
             empresa = self.entradaEmpresa.get()
             representante = self.entradaRepresentante.get()
             nit = self.entradaNIT.get()
@@ -304,16 +311,24 @@ class AgregarProveedor(tk.Tk):
             direccion = self.entradaDireccion.get()
             categoria = self.comboBoxCategoria.get()
             descripcion = self.entradaDescripcion.get()
-            sql = "UPDATE proveedores SET Empresa = '{}',Representante = '{}',Nit= '{}',EsPyme= '{}',Departamento= '{}',Municipio= '{}',Direccion= '{}',Categoria= '{}',Descripcion= '{}',Telefono= '{}' WHERE (id = '{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,self.idItem)
+
+            if self.archivo != "":
+                destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT  <<<<<<< SE DEBE CAMBIAR !!!
+                nombreRUT =os.path.basename(self.archivo)
+                os.makedirs(destino, mode=0o777, exist_ok=True)
+                shutil.copy(self.archivo, destino)        #hace una copia del archivo
+
+
+            sql = "UPDATE proveedores SET Empresa = '{}',Representante = '{}',Nit= '{}',EsPyme= '{}',Departamento= '{}',Municipio= '{}',Direccion= '{}',Categoria= '{}',Descripcion= '{}',Telefono= '{}',Archivo= '{}' WHERE (id = '{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,nombreRUT,self.idItem)
             self.cursor.execute(sql)
             self.connection.commit()
             self.refrescar()
             self.borrar()
-            self.noSeleccionRegistro = True #el false muestra que se ha señalado un registro
+            self.SeleccionRegistro = False #el false muestra que no se ha señalado un registro
 
     def refrescar(self):
         self.treeview.delete(*self.treeview.get_children())
-        sql = "SELECT * FROM Proveedores"
+        sql = "SELECT id,Empresa,Representante,Telefono,Departamento,Municipio,Categoria,Archivo FROM Proveedores"
         self.cursor.execute(sql)
 
         n=0
@@ -367,15 +382,16 @@ class AgregarProveedor(tk.Tk):
         self.entradaDireccion.delete(0,tk.END)
         self.comboBoxCategoria.set("")
         self.entradaDescripcion.delete(0,tk.END)
+        self.labelRut.config(text= "Vacio")
 
-        self.noSeleccionRegistro = True #cada vez que se borra el formulario se restablece la no selección de registros
+        self.SeleccionRegistro = False #cada vez que se borra el formulario se restablece la no selección de registros
     
     def adjuntarRUT(self):
-        archivo = filedialog.askopenfilename()   #selecciona el archivo 
-        if archivo != "":
-            destino = "/Users/debbiearredondo/desktop/prueba"     #se debe guardar la ruta del destino de los RUT
-            os.makedirs(destino, mode=0o777, exist_ok=True)
-            shutil.copy(archivo, destino)        #hace una copia del archivo
+        self.archivo = filedialog.askopenfilename()   #selecciona el archivo 
+        self.labelRut.config(text= os.path.basename(self.archivo))
+        
+        
+        
 
 class treeViewDashboard(tk.Tk):
     def __init__(self):
