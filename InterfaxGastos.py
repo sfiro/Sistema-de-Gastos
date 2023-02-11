@@ -79,19 +79,19 @@ class AgregarProveedor(tk.Tk):
         print("la base de datos se llama:",registro)
 
         self.title("Agregar Proveedor")
-        self.geometry("1600x900")
+        self.geometry("1000x900")
 
         self.columnconfigure(0, weight=1, minsize=70)
 
         self.frame1 = tk.Frame(master=self)
-        self.frame1.grid(row=0,column=0,sticky="nw")
+        self.frame1.grid(row=0,column=0,sticky="nsew")
         
 
         self.frame2 = tk.Frame(master=self)
-        self.frame2.grid(row=0,column=1,sticky="nw")
+        self.frame2.grid(row=1,column=0,sticky="nsew")
 
         self.frame3 = tk.Frame(master=self)
-        self.frame3.grid(row=1,column=0,columnspan=2)
+        self.frame3.grid(row=2,column=0,sticky="nsew")
 
 # ------------------ label de la ventana proveedores -------------------------------------
 
