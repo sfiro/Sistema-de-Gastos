@@ -81,70 +81,78 @@ class AgregarProveedor(tk.Tk):
         self.title("Agregar Proveedor")
         self.geometry("1000x900")
 
-        self.columnconfigure(0, weight=1, minsize=70)
+        #self.columnconfigure(0, weight=1, minsize=70)
 
         self.frame1 = tk.Frame(master=self)
         self.frame1.grid(row=0,column=0,sticky="nsew")
+        self.frame1.columnconfigure(0,weight=0)
+        self.frame1.columnconfigure(1,weight=0)
+
         
 
         self.frame2 = tk.Frame(master=self)
         self.frame2.grid(row=1,column=0,sticky="nsew")
+        self.frame2.columnconfigure(0,weight=1)
+        self.frame2.columnconfigure(1,weight=1)
+        self.frame2.columnconfigure(2,weight=1)
+        self.frame2.columnconfigure(3,weight=1)
 
         self.frame3 = tk.Frame(master=self)
         self.frame3.grid(row=2,column=0,sticky="nsew")
+        self.frame3.columnconfigure(0,weight=1)
 
 # ------------------ label de la ventana proveedores -------------------------------------
 
         self.empresa = tk.Label(master = self.frame1, text = "Empresa:")
-        self.empresa.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.empresa.grid(row = 0, column = 0, padx = 10, pady = 5)
 
         self.representante = tk.Label(master = self.frame1, text = "Representante legal:")
-        self.representante.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.representante.grid(row = 1, column = 0, padx = 10, pady = 5)
 
         self.nit = tk.Label(master = self.frame1, text = "NIT:")
-        self.nit.grid(row = 2, column = 0, padx = 10, pady = 10)
+        self.nit.grid(row = 2, column = 0, padx = 10, pady = 5)
 
         self.celular = tk.Label(master = self.frame1, text = "Celular:")
-        self.celular.grid(row = 3, column = 0, padx = 10, pady = 10)
+        self.celular.grid(row = 3, column = 0, padx = 10, pady = 5)
 
         self.pyme = tk.Label(master = self.frame1, text = "Es PYME:")
-        self.pyme.grid(row = 4, column = 0, padx = 10, pady = 10)
+        self.pyme.grid(row = 4, column = 0, padx = 10, pady = 5)
 
         self.departamento = tk.Label(master = self.frame1, text = "Departamento:")
-        self.departamento.grid(row = 5, column = 0, padx = 10, pady = 10)
+        self.departamento.grid(row = 5, column = 0, padx = 10, pady = 5)
 
         self.municipio = tk.Label(master = self.frame1, text = "Municipio:")
-        self.municipio.grid(row = 6, column = 0, padx = 10, pady = 10)
+        self.municipio.grid(row = 6, column = 0, padx = 10, pady = 5)
 
         self.direccion= tk.Label(master = self.frame1, text = "Direccion:")
-        self.direccion.grid(row = 7, column = 0, padx = 10, pady = 10)
+        self.direccion.grid(row = 7, column = 0, padx = 10, pady = 5)
 
         self.categoria = tk.Label(master = self.frame1, text = "Categoria:")
-        self.categoria.grid(row = 8, column = 0, padx = 10, pady = 10)
+        self.categoria.grid(row = 8, column = 0, padx = 10, pady = 5)
 
         self.descripcion = tk.Label(master = self.frame1, text = "Descripcion:")
-        self.descripcion.grid(row = 9, column = 0, padx = 10, pady = 10)
+        self.descripcion.grid(row = 9, column = 0, padx = 10, pady = 5)
 
         self.rutButton = tk.Button(master=self.frame1,text="Adjuntar RUT",command=self.adjuntarRUT)
-        self.rutButton.grid(row=10,column=0,padx=10,pady=10)
+        self.rutButton.grid(row=10,column=0,padx=10,pady=5)
 
 # ------------------ Entry de la ventana proveedores -------------------------------------
 
         self.entradaEmpresa = tk.Entry(master = self.frame1, textvariable="Empresa:")
-        self.entradaEmpresa.grid(row = 0, column = 1, padx = 10, pady = 10)
+        self.entradaEmpresa.grid(row = 0, column = 1, padx = 10, pady = 5)
 
         self.entradaRepresentante = tk.Entry(master = self.frame1, textvariable="Representante:")
-        self.entradaRepresentante.grid(row = 1, column = 1, padx = 10, pady = 10)
+        self.entradaRepresentante.grid(row = 1, column = 1, padx = 10, pady = 5)
 
         self.entradaNIT = tk.Entry(master = self.frame1, textvariable="NIT:")
-        self.entradaNIT.grid(row = 2, column = 1, padx = 10, pady = 10)
+        self.entradaNIT.grid(row = 2, column = 1, padx = 10, pady = 5)
 
         self.entradaTelefono = tk.Entry(master = self.frame1, textvariable="Telefono:")
-        self.entradaTelefono.grid(row = 3, column = 1, padx = 10, pady = 10)
+        self.entradaTelefono.grid(row = 3, column = 1, padx = 10, pady = 5)
 
         self.comboBoxPyme = ttk.Combobox(master = self.frame1)
         self.comboBoxPyme['values'] = ("SI","NO")
-        self.comboBoxPyme.grid(row = 4, column = 1, padx = 10, pady = 10)
+        self.comboBoxPyme.grid(row = 4, column = 1, padx = 10, pady = 5)
 
         def seleccion(event): #evento que actuliza la base de datos del combobox municipio en base a la seleccion del departamento
     
@@ -163,25 +171,25 @@ class AgregarProveedor(tk.Tk):
         for valor in self.cursor.fetchall():
             valores.append(valor[0])
         self.comboBoxDepartamento['values'] = valores
-        self.comboBoxDepartamento.grid(row = 5, column = 1, columnspan=2, padx = 10, pady = 10)
+        self.comboBoxDepartamento.grid(row = 5, column = 1, columnspan=2, padx = 10, pady = 5)
         self.comboBoxDepartamento.bind("<<ComboboxSelected>>",seleccion) #este es un evento que ocurre al generar un cambo en el combobox departamento
 
 # ---- El valor seleccionado en departamento debe filtrar las opciones del combobox de municipios
         self.comboBoxMunicipio = ttk.Combobox(master = self.frame1)
-        self.comboBoxMunicipio.grid(row = 6, column = 1, padx = 10, pady = 10)
+        self.comboBoxMunicipio.grid(row = 6, column = 1, padx = 10, pady = 5)
 
         self.entradaDireccion = tk.Entry(master = self.frame1, text = "Direccion:")
-        self.entradaDireccion.grid(row = 7, column = 1, padx = 10, pady = 10)
+        self.entradaDireccion.grid(row = 7, column = 1, padx = 10, pady = 5)
 
         self.comboBoxCategoria = ttk.Combobox(master = self.frame1)
         self.comboBoxCategoria['values'] = ("Madera","Impresiones")
-        self.comboBoxCategoria.grid(row = 8, column = 1, padx = 10, pady = 10)
+        self.comboBoxCategoria.grid(row = 8, column = 1, padx = 10, pady = 5)
 
         self.entradaDescripcion = tk.Entry(master = self.frame1, text = "descripcion:")
-        self.entradaDescripcion.grid(row = 9, column = 1, padx = 10, pady = 10)
+        self.entradaDescripcion.grid(row = 9, column = 1, padx = 10, pady = 5)
 
         self.labelRut = tk.Label(master = self.frame1, text = "Vacio")
-        self.labelRut.grid(row = 10, column = 1, padx = 10, pady = 10)
+        self.labelRut.grid(row = 10, column = 1, padx = 10, pady = 5)
 
 #----------------- frame 2 proveedores -------------------------------------------
 
