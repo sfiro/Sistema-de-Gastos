@@ -293,6 +293,8 @@ class AgregarProveedor(tk.Tk):
         self.entradaDescripcion.insert(0,datos[9])
         self.labelRut.config(text= datos[10])
 
+        self.archivo = ""  #necesario inicializar esta variable necesaria en el metodo de actualizacion para el nombreRUT
+
         self.SeleccionRegistro = True #el false muestra que se ha señalado un registro
 
     def eliminar(self):
@@ -325,6 +327,9 @@ class AgregarProveedor(tk.Tk):
                 nombreRUT =os.path.basename(self.archivo)
                 os.makedirs(destino, mode=0o777, exist_ok=True)
                 shutil.copy(self.archivo, destino)        #hace una copia del archivo
+            else:
+                nombreRUT = self.labelRut.cget("text")
+
 
 
             sql = "UPDATE proveedores SET Empresa = '{}',Representante = '{}',Nit= '{}',EsPyme= '{}',Departamento= '{}',Municipio= '{}',Direccion= '{}',Categoria= '{}',Descripcion= '{}',Telefono= '{}',Archivo= '{}' WHERE (id = '{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,nombreRUT,self.idItem)
