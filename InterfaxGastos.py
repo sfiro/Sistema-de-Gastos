@@ -44,6 +44,20 @@ class AgregarGastos(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        # ----------- conexion a la base de datos ------------------------
+        self.connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='3231213',
+            db='INGENIO'
+        )
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("SELECT database();")
+        registro = self.cursor.fetchone()
+
+        print("conexion establecida exitosamente")
+        print("la base de datos se llama:",registro)
+
         self.title("Agregar Gasto")
         self.geometry("500x300")
 
@@ -76,6 +90,23 @@ class AgregarGastos(tk.Tk):
         self.tipoGastoComboBox = ttk.Combobox(master = self.frame1)
         #self.comboBoxTipoGasto['values'] = ("SI","NO")
         self.tipoGastoComboBox.grid(row = 0, column = 1, padx = 10, pady = 5)
+
+        def seleccion(event): #evento que actuliza la base de datos del combobox detalle de gastos en base a la seleccion del departamento
+    
+            sql = "SELECT Detalle FROM DetalleGastos WHERE Tipo = '{}';".format(self.tipoGastoComboBox.get())  
+            self.cursor.execute(sql)
+            valores =[]
+            for valor in self.cursor.fetchall():
+                valores.append(valor[0])
+            self.detalleGastoComboBox['values'] = valores
+
+        sql = "SELECT Tipo FROM TipoGastos " 
+        self.cursor.execute(sql)
+        valores =[]
+        for valor in self.cursor.fetchall():
+            valores.append(valor[0])
+        self.tipoGastoComboBox['values'] = valores
+        self.tipoGastoComboBox.bind("<<ComboboxSelected>>",seleccion) #este es un evento que ocurre al generar un cambio en el combobox departamento
 
         self.detalleGastoComboBox = ttk.Combobox(master = self.frame1)
         #self.comboBoxTipoGasto['values'] = ("SI","NO")
