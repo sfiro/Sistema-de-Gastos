@@ -47,16 +47,71 @@ class AgregarGastos(tk.Tk):
         self.title("Agregar Gasto")
         self.geometry("500x300")
 
-        self.ingresarButton = tk.Button(master=self,text="Guardar",command=self.guardar)
-        self.ingresarButton.grid(row=0,column=0,padx=10,pady=10)
-        self.actualizarButton = tk.Button(master=self,text="Eliminar",command=self.eliminar)
-        self.actualizarButton.grid(row=0,column=1,padx=10,pady=10)
+        self.frame1 = tk.Frame(master=self)
+        self.frame1.grid(row=0,column=0,sticky="nsew")
+        self.frame1.columnconfigure(0,weight=0)
+        self.frame1.columnconfigure(1,weight=0)
+
+# ------------------------- Label de la interfax para agregar gastos -----------------------------------------------------
+        self.tipoGastoLabel = tk.Label(master = self.frame1, text = "Tipo de gasto:")
+        self.tipoGastoLabel.grid(row = 0, column = 0, padx = 10, pady = 5)
+
+        self.detalleGastoLabel = tk.Label(master = self.frame1, text = "Detalle de gasto:")
+        self.detalleGastoLabel.grid(row = 1, column = 0, padx = 10, pady = 5)
+
+        self.descripcionGastoLabel = tk.Label(master = self.frame1, text = "Descripción Gasto:")
+        self.descripcionGastoLabel.grid(row = 2, column = 0, padx = 10, pady = 5)
+
+        self.seleccionarButton = tk.Button(master=self.frame1,text="Seleccionar proveedor",command=self.seleccionar)
+        self.seleccionarButton.grid(row=3,column=0,padx=10,pady=10)
+
+        self.seleccionarFechaButton = tk.Button(master=self.frame1,text="Seleccionar Fecha",command=self.seleccionarFecha)
+        self.seleccionarFechaButton.grid(row=4,column=0,padx=10,pady=10)
+
+        self.valorGastoLabel = tk.Label(master = self.frame1, text = "Valor de gasto:")
+        self.valorGastoLabel.grid(row = 5, column = 0, padx = 10, pady = 5)
+
+# ------------------------- Elementos de interación de la interfax gráfica para agregar gastos ---------------------
+
+        self.tipoGastoComboBox = ttk.Combobox(master = self.frame1)
+        #self.comboBoxTipoGasto['values'] = ("SI","NO")
+        self.tipoGastoComboBox.grid(row = 0, column = 1, padx = 10, pady = 5)
+
+        self.detalleGastoComboBox = ttk.Combobox(master = self.frame1)
+        #self.comboBoxTipoGasto['values'] = ("SI","NO")
+        self.detalleGastoComboBox.grid(row = 1, column = 1, padx = 10, pady = 5)
+
+        self.descripcionEntry = tk.Entry(master = self.frame1, text = "Direccion:")
+        #self.descripcionEntry.grid(row = 2, column = 1, rowspan=2, padx = 10, pady = 5,sticky="nsew") # mirar esta versión 
+        self.descripcionEntry.grid(row = 2, column = 1, padx = 10, pady = 5,sticky="nsew")
+
+        self.proveedorLabel = tk.Label(master = self.frame1, text = "Sin selección")
+        self.proveedorLabel.grid(row = 3, column = 1, padx = 10, pady = 5)
+
+        self.fechaLabel = tk.Label(master = self.frame1, text = "TODAY")
+        self.fechaLabel.grid(row = 4, column = 1, padx = 10, pady = 5)
+
+        self.valorGastoEntry = tk.Entry(master = self.frame1, text = "Pago:")
+        self.valorGastoEntry.grid(row = 5, column = 1, padx = 10, pady = 5,sticky="nsew")
+
+
+
+
+
+
+        
 
     
     def guardar(self):
         pass
 
     def eliminar(self):
+        pass
+
+    def seleccionar(self):
+        pass
+
+    def seleccionarFecha(self):
         pass
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar proveedor)---------------------------------------
