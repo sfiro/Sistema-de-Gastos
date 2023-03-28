@@ -91,7 +91,7 @@ class AgregarGastos(tk.Tk):
         #self.comboBoxTipoGasto['values'] = ("SI","NO")
         self.tipoGastoComboBox.grid(row = 0, column = 1, padx = 10, pady = 5)
 
-        def seleccion(event): #evento que actuliza la base de datos del combobox detalle de gastos en base a la seleccion del departamento
+        def seleccion(event): #evento que actuliza la base de datos del combobox detalle de gastos en base a la seleccion del tipo de gasto
     
             sql = "SELECT Detalle FROM DetalleGastos WHERE Tipo = '{}';".format(self.tipoGastoComboBox.get())  
             self.cursor.execute(sql)
@@ -106,7 +106,7 @@ class AgregarGastos(tk.Tk):
         for valor in self.cursor.fetchall():
             valores.append(valor[0])
         self.tipoGastoComboBox['values'] = valores
-        self.tipoGastoComboBox.bind("<<ComboboxSelected>>",seleccion) #este es un evento que ocurre al generar un cambio en el combobox departamento
+        self.tipoGastoComboBox.bind("<<ComboboxSelected>>",seleccion) #este es un evento que ocurre al generar un cambio en el combobox tipo de gasto
 
         self.detalleGastoComboBox = ttk.Combobox(master = self.frame1)
         #self.comboBoxTipoGasto['values'] = ("SI","NO")
@@ -126,12 +126,6 @@ class AgregarGastos(tk.Tk):
         self.valorGastoEntry.grid(row = 5, column = 1, padx = 10, pady = 5,sticky="nsew")
 
 
-
-
-
-
-        
-
     
     def guardar(self):
         pass
@@ -140,7 +134,10 @@ class AgregarGastos(tk.Tk):
         pass
 
     def seleccionar(self):
-        pass
+        tree = treeViewDashboard()
+    
+        #self.proveedorLabel.config(text= treeView.seleccionar())
+        tree.mainloop()
 
     def seleccionarFecha(self):
         pass
@@ -555,6 +552,7 @@ class treeViewDashboard(tk.Tk):
         self.scrollbarTree.grid(row = 1, column = 0,sticky="ew")
         self.treeview.config(xscrollcommand=self.scrollbarTree.set)
 
+     
         def filtrar(event):
             nombre = self.entradaEmpresa.get()
             
@@ -567,6 +565,7 @@ class treeViewDashboard(tk.Tk):
             for dato in self.cursor.fetchall():
                 self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
                 n = n+1
+        
         
         # def nuevoFiltro(event):
         #     nombre = self.entradaRepresentante.get()
@@ -585,12 +584,11 @@ class treeViewDashboard(tk.Tk):
         self.entradaEmpresa.grid(row = 0, column = 0, padx = 10, pady = 10)
         self.entradaEmpresa.bind('<Key>', filtrar)
 
-
-        # self.entradaRepresentante = tk.Entry(master = self.frame2, textvariable="Representante:")
-        # self.entradaRepresentante.grid(row = 0, column = 1, padx = 10, pady = 10)
-        # self.entradaRepresentante.bind('<key>',nuevoFiltro)
-
         self.refrescar()
+
+        self.seleccionarButton = tk.Button(master=self.frame2,text="seleccionar",command=self.seleccionar)
+        self.seleccionarButton.grid(row=1,column=0,padx=10,pady=10)
+
     
     def refrescar(self):
         self.treeview.delete(*self.treeview.get_children())
@@ -602,7 +600,11 @@ class treeViewDashboard(tk.Tk):
             self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
             n = n+1
     
-    
+    def seleccionar(self):
+        self.idItem=int(self.treeview.selection()[0])
+        #print(idItem)
+        self.destroy()
+        return self.idItem
 
 
 if __name__ == "__main__":
