@@ -9,12 +9,17 @@ import os     #necesario para crear carpetas
 
 
 
-
+class compartir:  
+    # ---------------------- funcion para buscar compartir valores entre interfaces  ---------------------------------
+    def __init__(self):
+        self.idProveedor = None
 
 # -------------------- Ventana Principal del modulo de gasto ---------------------------------------
 class SeguimientoGastos(tk.Tk):
-    def __init__(self):
+    def __init__(self,datos):
         super().__init__()
+
+        self.datos = datos
 
         self.title("Seguimiento Gastos")
         self.geometry("500x300")
@@ -27,7 +32,7 @@ class SeguimientoGastos(tk.Tk):
         self.treeviewButton.grid(row=2,column=0,padx=10,pady=10)
     
     def gastos(self):
-        agregar = AgregarGastos()
+        agregar = AgregarGastos(self.datos)
         agregar.mainloop()
 
     def proveedor(self):
@@ -35,14 +40,16 @@ class SeguimientoGastos(tk.Tk):
         proveedorIngreso.mainloop()
     
     def tree(self):
-        treeView = treeViewDashboard()
+        treeView = treeViewDashboard(self.datos)
         treeView.mainloop()
 
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar gasto)---------------------------------------
 class AgregarGastos(tk.Tk):
-    def __init__(self):
+    def __init__(self, datos):
         super().__init__()
+
+        self.datos = datos
 
         # ----------- conexion a la base de datos ------------------------
         self.connection = mysql.connector.connect(
@@ -124,23 +131,27 @@ class AgregarGastos(tk.Tk):
 
         self.valorGastoEntry = tk.Entry(master = self.frame1, text = "Pago:")
         self.valorGastoEntry.grid(row = 5, column = 1, padx = 10, pady = 5,sticky="nsew")
-
-
-    
+         
+        self.refrescar()
+        
     def guardar(self):
         pass
 
     def eliminar(self):
         pass
 
+    def refrescar(self):
+        self.proveedorLabel.configure(text=self.datos.idProveedor)
+
+
     def seleccionar(self):
-        tree = treeViewDashboard()
-    
-        #self.proveedorLabel.config(text= treeView.seleccionar())
+        tree = treeViewDashboard(self.datos)
         tree.mainloop()
+        print(self.datos.idProveedor)
+
 
     def seleccionarFecha(self):
-        pass
+         pass
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar proveedor)---------------------------------------
 class AgregarProveedor(tk.Tk):
@@ -413,8 +424,6 @@ class AgregarProveedor(tk.Tk):
             else:
                 nombreRUT = self.labelRut.cget("text")
 
-
-
             sql = "UPDATE proveedores SET Empresa = '{}',Representante = '{}',Nit= '{}',EsPyme= '{}',Departamento= '{}',Municipio= '{}',Direccion= '{}',Categoria= '{}',Descripcion= '{}',Telefono= '{}',Archivo= '{}' WHERE (id = '{}');".format(empresa,representante,nit,espyme,departamento,municipio,direccion,categoria,descripcion,telefono,nombreRUT,self.idItem)
             self.cursor.execute(sql)
             self.connection.commit()
@@ -486,12 +495,10 @@ class AgregarProveedor(tk.Tk):
         self.archivo = filedialog.askopenfilename()   #selecciona el archivo 
         self.labelRut.config(text= os.path.basename(self.archivo))
         
-        
-        
-
 class treeViewDashboard(tk.Tk):
-    def __init__(self):
+    def __init__(self,datos):
         super().__init__()
+        self.datos = datos
         # ----------- conexion a la base de datos ------------------------
         self.connection = mysql.connector.connect(
             host='localhost',
@@ -602,11 +609,12 @@ class treeViewDashboard(tk.Tk):
     
     def seleccionar(self):
         self.idItem=int(self.treeview.selection()[0])
-        #print(idItem)
+        self.datos.idProveedor = self.idItem
         self.destroy()
-        return self.idItem
+        return self.datos.idProveedor
 
 
 if __name__ == "__main__":
-    VentanaGastos = SeguimientoGastos()
+    datos = compartir()
+    VentanaGastos = SeguimientoGastos(datos)
     VentanaGastos.mainloop()
