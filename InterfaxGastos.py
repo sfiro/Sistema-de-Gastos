@@ -611,7 +611,7 @@ class treeViewDashboard(tk.Tk):
         self.idItem=int(self.treeview.selection()[0])
         self.datos.idProveedor = self.idItem
         self.destroy()
-        return self.datos.idProveedor
+        # return self.datos.idProveedor
 
 
 if __name__ == "__main__":
