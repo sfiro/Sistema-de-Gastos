@@ -5,6 +5,7 @@ from tkinter import filedialog     #importante para tener ventanas de busqueda d
 import mysql.connector
 import shutil   #necesario para copiar archivos
 import os     #necesario para crear carpetas
+import datetime   #modulo necesario para manejar fecha 
 
 
 
@@ -28,8 +29,10 @@ class SeguimientoGastos(tk.Tk):
         self.ingresarButton.grid(row=0,column=0,padx=10,pady=10)
         self.actualizarButton = tk.Button(master=self,text="Agregar Proveedor",command=self.proveedor)
         self.actualizarButton.grid(row=1,column=0,padx=10,pady=10)
-        self.treeviewButton = tk.Button(master=self,text="TREEVIEW",command=self.tree)
+        self.treeviewButton = tk.Button(master=self,text="Seleccionar Proveedor",command=self.tree)
         self.treeviewButton.grid(row=2,column=0,padx=10,pady=10)
+        self.visorGastosButton = tk.Button(master=self,text="Visor de Gastos",command=self.visorGastos)
+        self.visorGastosButton.grid(row=3,column=0,padx=10,pady=10)
     
     def gastos(self):
         agregar = AgregarGastos(self.datos)
@@ -42,6 +45,11 @@ class SeguimientoGastos(tk.Tk):
     def tree(self):
         treeView = treeViewDashboard(self.datos)
         treeView.mainloop()
+
+    def visorGastos(self):
+        visor = VisorGastos()
+        visor.mainloop()
+
 
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar gasto)---------------------------------------
@@ -66,12 +74,16 @@ class AgregarGastos(tk.Tk):
         print("la base de datos se llama:",registro)
 
         self.title("Agregar Gasto")
-        self.geometry("500x300")
+        self.geometry("900x550")
 
         self.frame1 = tk.Frame(master=self)
+        self.frame2 = tk.Frame(master=self)
+        self.frame3 = tk.Frame(master=self)
         self.frame1.grid(row=0,column=0,sticky="nsew")
-        self.frame1.columnconfigure(0,weight=0)
-        self.frame1.columnconfigure(1,weight=0)
+        self.frame2.grid(row=1,column=0,sticky="nsew")
+        self.frame3.grid(row=2,column=0,sticky="nsew")
+        #self.frame1.columnconfigure(0,weight=0)
+        #self.frame1.columnconfigure(1,weight=0)
 
 # ------------------------- Label de la interfax para agregar gastos -----------------------------------------------------
         self.tipoGastoLabel = tk.Label(master = self.frame1, text = "Tipo de gasto:")
@@ -91,6 +103,9 @@ class AgregarGastos(tk.Tk):
 
         self.valorGastoLabel = tk.Label(master = self.frame1, text = "Valor de gasto:")
         self.valorGastoLabel.grid(row = 5, column = 0, padx = 10, pady = 5)
+
+
+        
 
 # ------------------------- Elementos de interación de la interfax gráfica para agregar gastos ---------------------
 
@@ -123,35 +138,183 @@ class AgregarGastos(tk.Tk):
         #self.descripcionEntry.grid(row = 2, column = 1, rowspan=2, padx = 10, pady = 5,sticky="nsew") # mirar esta versión 
         self.descripcionEntry.grid(row = 2, column = 1, padx = 10, pady = 5,sticky="nsew")
 
-        self.proveedorLabel = tk.Label(master = self.frame1, text = "Sin selección")
+        self.proveedorLabel = tk.Label(master = self.frame1, text = "")
         self.proveedorLabel.grid(row = 3, column = 1, padx = 10, pady = 5)
 
-        self.fechaLabel = tk.Label(master = self.frame1, text = "TODAY")
+        self.fechaLabel = tk.Label(master = self.frame1, text = "")
         self.fechaLabel.grid(row = 4, column = 1, padx = 10, pady = 5)
 
         self.valorGastoEntry = tk.Entry(master = self.frame1, text = "Pago:")
         self.valorGastoEntry.grid(row = 5, column = 1, padx = 10, pady = 5,sticky="nsew")
-         
+
+        #########  
+
+        def filtrar(event):   #evento al momento de apretar enter en el valor 
+            
+            self.valor = float(self.valorGastoEntry.get())
+            formatted_num = "{:,.1f}".format(self.valor) # Formatear el número con 2 decimales y separadores de miles
+            #print(formatted_num)
+            self.valorGastoEntry.delete(0,tk.END)   #borra el entry 
+            self.valorGastoEntry.insert(0,formatted_num)   #cambia los valores por el formato
+            
+        
+        self.valorGastoEntry = tk.Entry(master = self.frame1, text = "Pago:")
+        self.valorGastoEntry.grid(row = 5, column = 1, padx = 10, pady = 5,sticky="nsew")
+        self.valorGastoEntry.bind('<Return>', filtrar)  #evento que se activa cuando se apreta el boton enter 
+
+# --------Botones del frame 2 ------ para guardar y borrar datos de la interfax
+        
+        self.guardarButton = tk.Button(master=self.frame2,text="Guardar",command=self.guardar)
+        self.guardarButton.grid(row=0,column=0,padx=10,pady=10)
+
+        self.borrarButton = tk.Button(master=self.frame2,text="Borrar formulario",command=self.eliminar)
+        self.borrarButton.grid(row=0,column=1,padx=10,pady=10)
+
+        self.cargarButton = tk.Button(master=self.frame2,text="cargar",command=self.cargar)
+        self.cargarButton.grid(row=0,column=2,padx=10,pady=10)
+
+        self.actualizarButton = tk.Button(master=self.frame2,text="actualizar",command=self.actualizar)
+        self.actualizarButton.grid(row=0,column=3,padx=10,pady=10)
+
+# ------- Treeview del Frame 3 ------------------------------
+
+        self.treeview = ttk.Treeview(master=self.frame3,columns=('col1','col2','col3','col4','col5','col6','col7'))
+        self.treeview.grid(row = 0, column = 0,sticky="ew")
+
+        
+        #self.treeview.configure(xscrollcommand=self.scrollbarTree.set)
+        
+        self.treeview.heading('#0', text='ID')
+        self.treeview.column('#0', width=50)  #id
+        self.treeview.column('#1', width=150) #empresa
+        self.treeview.column('#2', width=150) #representante
+        self.treeview.column('#3', width=150) #nit
+        self.treeview.column('#4', width=150)  #es pyme
+        self.treeview.column('#5', width=100) #departamento
+        self.treeview.column('#6', width=150) #municipio
+     
+
+        self.treeview.heading('col1', text='tipo Gasto')
+        self.treeview.heading('col2', text='detalle Gasto')
+        self.treeview.heading('col3', text='descripcion Gasto')
+        self.treeview.heading('col4', text='id Proveedor')
+        self.treeview.heading('col5', text='fecha')
+        self.treeview.heading('col6', text='valor Gasto')
+        
+
+        self.scrollbarTree = ttk.Scrollbar(master=self.frame3,orient="horizontal",command=self.treeview.xview)
+        self.scrollbarTree.grid(row = 1, column = 0,sticky="ew")
+        self.treeview.config(xscrollcommand=self.scrollbarTree.set)
+
+
+        self.SeleccionRegistro = False
         self.refrescar()
+    
+    def validar(self): #valida si todos los elementos de la ventana se encuentran con valores en caso contrario no deja guardar la información
+        valor = True
+        
+        if self.tipoGastoComboBox.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el tipo de gasto")
+            valor = False
+        if self.detalleGastoComboBox.get() == "":
+            messagebox.showinfo("Problema", "se debe ingresar el detalle del gasto")
+            valor = False
+        if self.descripcionEntry.get() == "": 
+            messagebox.showinfo("Problema", "se debe ingregar una descripción del gasto realizado")
+            valor = False
+        if self.proveedorLabel.cget("text") == "":
+            messagebox.showinfo("Problema", "se debe seleccionar un proveedor")
+            valor = False
+        if self.fechaLabel.cget("text") == "":
+            messagebox.showinfo("Problema", "se debe seleccionar una fecha")
+            valor = False
+        if self.valorGastoEntry.get() == "":
+            messagebox.showinfo("Problema", "se debe agregar un valor para el gasto realizado")
+            valor = False
+        return valor
         
     def guardar(self):
-        pass
+        valor = self.validar()
+        if valor & ~self.SeleccionRegistro:
+            tipoGasto = self.tipoGastoComboBox.get()
+            detalleGasto = self.detalleGastoComboBox.get()
+            descripcionGasto = self.descripcionEntry.get()
+            idProveedor = int(self.proveedorLabel.cget("text"))
+            #fecha = datetime(self.fechaLabel.cget("text"))
+            valorGasto = self.valor
+
+            self.cursor.execute("INSERT INTO Gastos(tipoGasto,detalleGasto,descripcionGasto,idProveedor,fecha,valorGasto) VALUES('{}','{}','{}','{}','{}','{}');".format(tipoGasto,detalleGasto,descripcionGasto,idProveedor,datetime.date.today(),valorGasto))
+            self.connection.commit()
+            self.eliminar()
+            self.refrescar()
+        
+            
 
     def eliminar(self):
-        pass
+        self.tipoGastoComboBox.set("")
+        self.detalleGastoComboBox.set("")
+        self.descripcionEntry.delete(0,tk.END)
+        self.proveedorLabel.config(text= "")
+        self.fechaLabel.config(text= "")
+        self.valorGastoEntry.delete(0,tk.END)
+        self.SeleccionRegistro = False
+
+    def cargar(self):
+        self.eliminar()
+        self.idItem=int(self.treeview.selection()[0])
+
+        sql = "SELECT * FROM Gastos WHERE (idGastos = '{}');".format(self.idItem)
+        self.cursor.execute(sql)
+        datos = self.cursor.fetchone()
+        
+        self.tipoGastoComboBox.set(datos[1])
+        self.detalleGastoComboBox.set(datos[2])
+        self.descripcionEntry.insert(0,datos[3]) 
+        self.proveedorLabel.config(text= datos[4])
+        self.fechaLabel.config(text= datos[5])
+        self.valorGastoEntry.insert(0,datos[6]) 
+        self.SeleccionRegistro = True
 
     def refrescar(self):
+        self.treeview.delete(*self.treeview.get_children())
+        sql = "SELECT * FROM Gastos"
+        self.cursor.execute(sql)
+
+        n=0
+        for dato in self.cursor.fetchall():
+            self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+            n = n+1
+
         self.proveedorLabel.configure(text=self.datos.idProveedor)
+
+    def actualizar(self):
+        valor = self.validar()
+        if valor & self.SeleccionRegistro:
+            tipoGasto = self.tipoGastoComboBox.get()
+            detalleGasto = self.detalleGastoComboBox.get()
+            descripcionGasto = self.descripcionEntry.get()
+            idProveedor = int(self.proveedorLabel.cget("text"))
+            #fecha = datetime(self.fechaLabel.cget("text"))
+            valorGasto = self.valor
+
+            sql = "UPDATE Gastos SET tipoGasto = '{}',detalleGasto = '{}',descripcionGasto= '{}',idProveedor= '{}',fecha= '{}',valorGasto= '{}' WHERE (idGastos = '{}');".format(tipoGasto,detalleGasto,descripcionGasto,idProveedor,datetime.date.today(),valorGasto,self.idItem)
+            self.cursor.execute(sql)
+            self.connection.commit()
+            self.refrescar()
+            self.eliminar()
+            self.SeleccionRegistro = False #el false muestra que no se ha señalado un registro
 
 
     def seleccionar(self):
+        self.destroy()
         tree = treeViewDashboard(self.datos)
         tree.mainloop()
-        print(self.datos.idProveedor)
+
+        #print(self.datos.idProveedor)
 
 
     def seleccionarFecha(self):
-         pass
+         self.fechaLabel.configure(text=datetime.date.today())
 
 # -------------------- Ventana secundaria del modulo de gasto (agregar proveedor)---------------------------------------
 class AgregarProveedor(tk.Tk):
@@ -613,6 +776,98 @@ class treeViewDashboard(tk.Tk):
         self.destroy()
         # return self.datos.idProveedor
 
+class VisorGastos(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        # ----------- conexion a la base de datos ------------------------
+        self.connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='3231213',
+            db='INGENIO'
+        )
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("SELECT database();")
+        registro = self.cursor.fetchone()
+
+        print("conexion establecida exitosamente")
+        print("la base de datos se llama:",registro)
+
+        self.title("Agregar Proveedor")
+        self.geometry("1200x900")
+
+        self.columnconfigure(0, weight=1, minsize=70)
+
+        self.frame1 = tk.Frame(master=self)
+        self.frame2 = tk.Frame(master=self)
+        self.frame3 = tk.Frame(master=self)
+        self.frame1.grid(row=0,column=0,sticky="nsew")
+        self.frame2.grid(row=1,column=0,sticky="nsew")
+        self.frame3.grid(row=1,column=1,sticky="nsew")
+
+        self.treeview = ttk.Treeview(master=self.frame1,columns=('col1','col2','col3','col4','col5','col6','col7'))
+        self.treeview.grid(row = 0, column = 0,sticky="ew")
+
+        
+        #self.treeview.configure(xscrollcommand=self.scrollbarTree.set)
+        
+        self.treeview.heading('#0', text='ID')
+        self.treeview.column('#0', width=50)  #id
+        self.treeview.column('#1', width=150) #empresa
+        self.treeview.column('#2', width=150) #representante
+        self.treeview.column('#3', width=150) #nit
+        self.treeview.column('#4', width=150)  #es pyme
+        self.treeview.column('#5', width=100) #departamento
+        self.treeview.column('#6', width=150) #municipio
+     
+
+        self.treeview.heading('col1', text='tipo Gasto')
+        self.treeview.heading('col2', text='detalle Gasto')
+        self.treeview.heading('col3', text='descripcion Gasto')
+        self.treeview.heading('col4', text='id Proveedor')
+        self.treeview.heading('col5', text='fecha')
+        self.treeview.heading('col6', text='valor Gasto')
+        
+
+        self.scrollbarTree = ttk.Scrollbar(master=self.frame1,orient="horizontal",command=self.treeview.xview)
+        self.scrollbarTree.grid(row = 1, column = 0,sticky="ew")
+        self.treeview.config(xscrollcommand=self.scrollbarTree.set)
+
+     
+        def filtrar(event):
+            nombre = self.busquedaGasto.get()
+            
+            self.treeview.delete(*self.treeview.get_children())
+
+            sql = "SELECT * FROM Gastos WHERE tipoGasto like '%{}%'".format(nombre)
+            self.cursor.execute(sql)
+
+            n=0
+            for dato in self.cursor.fetchall():
+                self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+                n = n+1
+
+
+        self.busquedaGasto = tk.Entry(master = self.frame2, textvariable="Buscar:")
+        self.busquedaGasto.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.busquedaGasto.bind('<Key>', filtrar)
+
+        self.refrescar()
+
+    
+
+    
+    def refrescar(self):
+        self.treeview.delete(*self.treeview.get_children())
+        sql = "SELECT * FROM Gastos"
+        self.cursor.execute(sql)
+
+        n=0
+        for dato in self.cursor.fetchall():
+            self.treeview.insert('','end',dato[0],text=dato[0],values=(dato[1:]))
+            n = n+1
+    
+    
 
 if __name__ == "__main__":
     datos = compartir()
