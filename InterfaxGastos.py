@@ -151,8 +151,8 @@ class AgregarGastos(tk.Tk):
 
         def filtrar(event):   #evento al momento de apretar enter en el valor 
             
-            self.valor = float(self.valorGastoEntry.get())
-            formatted_num = "{:,.1f}".format(self.valor) # Formatear el número con 2 decimales y separadores de miles
+            self.valorGasto = float(self.valorGastoEntry.get())
+            formatted_num = "{:,.1f}".format(self.valorGasto) # Formatear el número con 2 decimales y separadores de miles
             #print(formatted_num)
             self.valorGastoEntry.delete(0,tk.END)   #borra el entry 
             self.valorGastoEntry.insert(0,formatted_num)   #cambia los valores por el formato
@@ -295,7 +295,7 @@ class AgregarGastos(tk.Tk):
             descripcionGasto = self.descripcionEntry.get()
             idProveedor = int(self.proveedorLabel.cget("text"))
             #fecha = datetime(self.fechaLabel.cget("text"))
-            valorGasto = self.valor
+            valorGasto = self.valorGastoEntry.get()
 
             sql = "UPDATE Gastos SET tipoGasto = '{}',detalleGasto = '{}',descripcionGasto= '{}',idProveedor= '{}',fecha= '{}',valorGasto= '{}' WHERE (idGastos = '{}');".format(tipoGasto,detalleGasto,descripcionGasto,idProveedor,datetime.date.today(),valorGasto,self.idItem)
             self.cursor.execute(sql)
